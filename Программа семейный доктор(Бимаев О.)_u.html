@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Семейный доктор - Медицинская программа</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f3f4f6;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #e5e7eb;
+            --card-bg: #ffffff;
+            --header-bg: #f9fafb;
+            --search-bg: #ff6b6b;
+            --search-text: #ffffff;
+            --search-hover: #ff5252;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .program-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .program-info p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .search-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 300px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-light);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (min-width: 769px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+        }
+        
+        .content-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-section h2::after {
+            content: "▼";
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .content-section.collapsed h2::after {
+            transform: rotate(-90deg);
+        }
+        
+        .content-section.collapsed .section-content {
+            display: none;
+        }
+        
+        .content-section h3 {
+            color: var(--primary-dark);
+            margin: 1rem 0 0.5rem;
+        }
+        
+        .contact-info {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .phone-number {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0.5rem 0;
+            text-decoration: none;
+        }
+        
+        .phone-number:hover {
+            color: var(--primary-dark);
+        }
+        
+        .curator-card {
+            background: var(--secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .curator-card h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .list-item {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .list-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .clinic-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .clinic-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .clinic-item:last-child {
+            border-bottom: none;
+        }
+        
+        .limited-item {
+            background: rgba(245, 158, 11, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 0;
+        }
+        
+        .excluded-item {
+            color: var(--danger);
+            text-decoration: line-through;
+        }
+        
+        .highlight {
+            background-color: yellow;
+            padding: 0 2px;
+        }
+        
+        .coverage-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem 0;
+        }
+        
+        .badge-unlimited {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-limited {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .badge-excluded {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .important-note {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .search-results {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--search-bg);
+            border-radius: 8px;
+            display: none;
+            color: var(--search-text);
+        }
+        
+        .search-results h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .result-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .result-item:hover {
+            background-color: var(--search-hover);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-section {
+            font-weight: bold;
+            margin: 0.5rem 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Адаптивные стили */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .program-info h1 {
+                font-size: 2rem;
+            }
+            
+            .search-container {
+                min-width: 100%;
+            }
+            
+            .contact-info {
+                order: 2;
+            }
+            
+            .main-area {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .program-info h1 {
+                font-size: 1.8rem;
+            }
+            
+            header {
+                padding: 1.5rem 0;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="program-info">
+                    <h1>Семейный доктор</h1>
+                    <p>Медицинская программа от ООО «Абсолют Страхование»</p>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по медицинским услугам...">
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="main-area">
+                <div class="content-section" id="generalInfoSection">
+                    <h2>Общая информация</h2>
+                    <div class="section-content">
+                        <p><strong>Страховщик:</strong> ООО «Абсолют Страхование»</p>
+                        <p><strong>Медицинский провайдер:</strong> АО «Семейный доктор»</p>
+                        <p><strong>Зона покрытия:</strong> в пределах МКАД (для вызова врача на дом)</p>
+                        <p><strong>Сайт:</strong> <a href="http://www.absolutins.ru" target="_blank">www.absolutins.ru</a></p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="insuranceCasesSection">
+                    <h2>Страховые случаи</h2>
+                    <div class="section-content">
+                        <div id="insuranceCases"></div>
+                    </div>
+                </div>
+
+                <div class="content-section" id="coveredServicesSection">
+                    <h2>Покрываемые услуги</h2>
+                    <div class="section-content">
+                        <h3>Амбулаторная помощь</h3>
+                        <p><strong>Консультация терапевта:</strong> без ограничений</p>
+                        
+                        <h4>Консультации специалистов</h4>
+                        <p><strong>Разрешено:</strong> все специальности по лицензии</p>
+                        <p><strong>Исключено:</strong></p>
+                        <div id="excludedSpecialists"></div>
+                        
+                        <h4>Лабораторные исследования</h4>
+                        <p><strong>Без ограничений:</strong></p>
+                        <div id="unlimitedLabTests"></div>
+                        <p><strong>С ограничениями:</strong></p>
+                        <div id="limitedLabTests"></div>
+                        
+                        <h4>Инструментальная диагностика</h4>
+                        <p><strong>Без ограничений:</strong></p>
+                        <div id="unlimitedDiagnostics"></div>
+                        <p><strong>С ограничениями:</strong></p>
+                        <div id="limitedDiagnostics"></div>
+                        <p><strong>Исключено:</strong></p>
+                        <div id="excludedDiagnostics"></div>
+                        
+                        <h4>Лечебные процедуры</h4>
+                        <div id="therapeuticProcedures"></div>
+                        
+                        <h3>Вызов врача на дом</h3>
+                        <p><strong>Разрешено:</strong> Да</p>
+                        <p><strong>Лимит:</strong> 10 выездов за период прикрепления</p>
+                        <p><strong>Условия:</strong> при объективных признаках заболевания, в будни, в пределах МКАД</p>
+                        
+                        <h3>Профилактические осмотры</h3>
+                        <p><strong>Периодичность:</strong> однократно за период прикрепления</p>
+                        <p><strong>Специалисты:</strong></p>
+                        <div id="preventiveSpecialists"></div>
+                        <p><strong>Дополнительно:</strong></p>
+                        <div id="preventiveAdditional"></div>
+                        
+                        <h3>Медицинская документация</h3>
+                        <div id="medicalDocumentation"></div>
+                        <p><em>Выдаётся при предъявлении документа, удостоверяющего личность</em></p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="exclusionsSection">
+                    <h2>Исключения</h2>
+                    <div class="section-content">
+                        <h3>Заболевания, не подлежащие покрытию</h3>
+                        <div id="excludedConditions"></div>
+                        
+                        <h3>Услуги, не подлежащие покрытию</h3>
+                        <div id="excludedServices"></div>
+                        
+                        <h3>Оборудование, не подлежащее покрытию</h3>
+                        <div id="excludedEquipment"></div>
+                    </div>
+                </div>
+
+                <div class="content-section" id="importantNotesSection">
+                    <h2>Важные примечания</h2>
+                    <div class="section-content">
+                        <div id="importantNotes"></div>
+                    </div>
+                </div>
+
+                <div class="contact-info" id="contactInfoSection">
+                    <h2>Контактная информация</h2>
+                    
+                    <h3>Основной телефон</h3>
+                    <a href="tel:+74957800771" class="phone-number">+7 (495) 780-07-71</a>
+                    
+                    <h3>Круглосуточная диспетчерская служба</h3>
+                    <a href="tel:+74950259999" class="phone-number">+7 (495) 025-99-99</a> (Москва)
+                    <a href="tel:+78007004770" class="phone-number">+7 (800) 700-47-70</a> (Бесплатно по России)
+                    
+                    <div class="curator-card">
+                        <h4>Медицинский куратор</h4>
+                        <p><strong>Кокая Софико Левановна</strong></p>
+                        <a href="tel:+74950257777" class="phone-number">+7 (495) 025-77-77 доб.13-29</a>
+                        <a href="tel:+79266000514" class="phone-number">+7 (926) 600-05-14</a>
+                        <p><a href="mailto:s.kokaya@absolutins.ru">s.kokaya@absolutins.ru</a></p>
+                    </div>
+                    
+                    <div class="curator-card">
+                        <h4>Административный куратор</h4>
+                        <p><strong>Хасянова Эльмира</strong></p>
+                        <a href="tel:+74950257777" class="phone-number">+7 (495) 025-77-77 доб.13-32</a>
+                        <p><a href="mailto:e.hasyanova@absolutins.ru">e.hasyanova@absolutins.ru</a></p>
+                    </div>
+                    
+                    <h3 style="margin-top: 1.5rem;">Клиники</h3>
+                    <div class="clinic-list" id="clinicsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const medicalData = {
+            "program_name": "Семейный доктор",
+            "insurer": "ООО «Абсолют Страхование»",
+            "medical_provider": "АО «Семейный доктор»",
+            "coverage_area": "в пределах МКАД (для вызова врача на дом)",
+            "contact_info": {
+                "main_phone": "+7(495)780-07-71",
+                "24h_dispatch": {
+                    "moscow": "+7(495) 025-99-99",
+                    "russia_free": "+7(800) 700-47-70"
+                },
+                "curators": {
+                    "medical": {
+                        "name": "Кокая Софико Левановна",
+                        "phone": "+7(495) 025-77-77 доб.13-29",
+                        "mobile": "+7(926) 600-05-14",
+                        "email": "s.kokaya@absolutins.ru"
+                    },
+                    "administrative": {
+                        "name": "Хасянова Эльмира",
+                        "phone": "+7(495) 025-77-77 доб.13-32",
+                        "email": "e.hasyanova@absolutins.ru"
+                    }
+                }
+            },
+            "clinics": [
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "109147, г Москва, ул Воронцовская, д 19А стр 1"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "123154, Москва г, Генерала Карбышева б-р, д.13"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "115563, Москва г, Борисовский пр-д, д.19а"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "123242, Москва г, Баррикадная ул, д.19, стр.3"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "117152, Москва г, Севастопольский пр-кт, д.10, стр.2"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "127642, Москва г, Дежнева пр-д, д.1"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "119192, Москва г, Мичуринский пр-кт, д.34"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "125565, Москва г, Флотская ул, д.5а"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "105203, Москва г, Первомайская Нижн. ул, д.43"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "117574, Москва г, Профсоюзная ул, д.127Б"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "109469, Москва г, Братиславская ул, д.23"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "117405, Москва г, Варшавское ш, д.148"
+                },
+                {
+                    "name": "АО \"Семейный доктор\"",
+                    "address": "123154, Москва г, Маршала Тухачевского ул, д.37/21"
+                },
+                {
+                    "name": "АО \"Семейный доктор\" (госпитальный центр)",
+                    "address": "105005, Москва г, Бакунинская ул, д.1-3"
+                }
+            ],
+            "insurance_cases": [
+                "Острое заболевание (включая травмы, ожоги, отравления и др.)",
+                "Обострение хронического заболевания",
+                "Осложнение после медицинского вмешательства",
+                "Острое заболевание или обострение до установления диагноза (включая исключённые заболевания)",
+                "Планово-профилактические мероприятия в объёме программы"
+            ],
+            "covered_services": {
+                "outpatient_care": {
+                    "general_practitioner_consultation": "без ограничений",
+                    "specialist_consultations": {
+                        "allowed": "все специальности по лицензии",
+                        "excluded": [
+                            "онкология (после постановки диагноза)",
+                            "наркология",
+                            "косметология",
+                            "психиатрия (кроме первичной консультации без тестов)"
+                        ]
+                    },
+                    "lab_tests": {
+                        "unlimited": [
+                            "общеклинические анализы",
+                            "биохимия",
+                            "бактериология (кишечные инфекции, дифтерия)",
+                            "микроскопия мазков из мочеполовых органов"
+                        ],
+                        "limited": [
+                            {
+                                "test": "гормоны щитовидной железы и половые гормоны",
+                                "limit": "не более 2 раз за период прикрепления"
+                            },
+                            {
+                                "test": "серологические исследования",
+                                "limit": "5 раз в год"
+                            },
+                            {
+                                "test": "цитология шейки матки",
+                                "limit": "по показаниям"
+                            },
+                            {
+                                "test": "ПЦР на урогенитальные инфекции",
+                                "limit": "не более 5 инфекций за период"
+                            },
+                            {
+                                "test": "культуральные исследования",
+                                "limit": "однократно"
+                            },
+                            {
+                                "test": "цитологические, гистологические, микроскопические, биохимические исследования",
+                                "limit": "5 раз в год"
+                            }
+                        ]
+                    },
+                    "instrumental_diagnostics": {
+                        "unlimited": [
+                            "УЗИ (по показаниям)",
+                            "эндоскопия (по показаниям)"
+                        ],
+                        "limited": [
+                            {
+                                "procedure": "рентген (без контраста)",
+                                "limit": "по показаниям"
+                            },
+                            {
+                                "procedure": "холтер-мониторинг ЭКГ",
+                                "limit": "1 раз за период прикрепления"
+                            }
+                        ],
+                        "excluded": [
+                            "рентгенконтрастные методы",
+                            "функциональные пробы"
+                        ]
+                    },
+                    "therapeutic_procedures": {
+                        "included": [
+                            "амбулаторные хирургические вмешательства",
+                            "физиотерапия — 1 курс (10 сеансов)",
+                            "массаж — 1 курс (10 сеансов)"
+                        ]
+                    }
+                },
+                "home_visits": {
+                    "allowed": true,
+                    "limit": "10 выездов за период прикрепления",
+                    "conditions": "при объективных признаках заболевания, в будни, в пределах МКАД"
+                },
+                "preventive_exams": {
+                    "frequency": "однократно за период прикрепления",
+                    "specialists": [
+                        "врач общей практики",
+                        "окулист",
+                        "кардиолог (с ЭКГ)",
+                        "ЛОР",
+                        "дерматолог",
+                        "стоматолог",
+                        "гинеколог/уролог"
+                    ],
+                    "additional": [
+                        "Rg легких"
+                    ]
+                },
+                "medical_documentation": {
+                    "included": [
+                        "листок нетрудоспособности",
+                        "рецепты (кроме льготных)",
+                        "справка в ГИБДД — 1 раз в год"
+                    ],
+                    "note": "выдаётся при предъявлении документа, удостоверяющего личность"
+                }
+            },
+            "exclusions": {
+                "conditions_not_covered": [
+                    "Злокачественные и доброкачественные новообразования",
+                    "ВИЧ/СПИД, иммунодефициты",
+                    "Туберкулез, саркоидоз",
+                    "Психические расстройства, эпилепсия",
+                    "Наркомания, алкоголизм, токсикомания",
+                    "Сахарный диабет и его осложнения",
+                    "Хронические гепатиты, цирроз печени",
+                    "Хроническая почечная недостаточность",
+                    "Беременность и её осложнения",
+                    "Планирование семьи, бесплодие, импотенция",
+                    "Врожденные и наследственные заболевания",
+                    "Системные болезни соединительной ткани",
+                    "Профессиональные заболевания",
+                    "Ожирение, остеопороз, нарушения обмена веществ",
+                    "Венерические заболевания"
+                ],
+                "services_not_covered": [
+                    "Диспансерное наблюдение хронических заболеваний",
+                    "Обследования без медицинских показаний",
+                    "Экспериментальные методы лечения",
+                    "Гомеопатия, традиционная медицина",
+                    "Пластические и косметические операции",
+                    "Стоматологические услуги вне обострения (включая имплантацию, ортодонтию)",
+                    "КТ, МРТ, денситометрия, колоноскопия",
+                    "Иммунологические и аллергологические панели",
+                    "Онкомаркеры, маркеры остеопороза",
+                    "Профилактическая вакцинация (кроме экстренной)",
+                    "Медосмотры для трудоустройства, МСЭК, водительских прав и пр.",
+                    "Реабилитация вне поликлиники",
+                    "Услуги дневного стационара",
+                    "Лекарства и расходные материалы (не входящие в стоимость услуги)"
+                ],
+                "equipment_not_covered": [
+                    "Протезы, имплантаты, кардиостимуляторы",
+                    "Очки, контактные линзы, слуховые аппараты",
+                    "Костыли, корсеты, стельки и др."
+                ]
+            },
+            "important_notes": [
+                "Если медучреждение требует оплату — не платите! Свяжитесь с диспетчерской службой для подтверждения покрытия.",
+                "Покрытие действует до момента подтверждения диагноза из списка исключений.",
+                "После подтверждения исключённого диагноза или установления инвалидности I–II группы — страховщик может снять с программы."
+            ],
+            "website": "www.absolutins.ru"
+        };
+
+        // Карта путей к элементам для навигации
+        const pathToElementMap = {
+            'insurance_cases': 'insuranceCasesSection',
+            'covered_services.outpatient_care.specialist_consultations.excluded': 'coveredServicesSection',
+            'covered_services.outpatient_care.lab_tests.unlimited': 'coveredServicesSection',
+            'covered_services.outpatient_care.lab_tests.limited': 'coveredServicesSection',
+            'covered_services.outpatient_care.instrumental_diagnostics.unlimited': 'coveredServicesSection',
+            'covered_services.outpatient_care.instrumental_diagnostics.limited': 'coveredServicesSection',
+            'covered_services.outpatient_care.instrumental_diagnostics.excluded': 'coveredServicesSection',
+            'covered_services.outpatient_care.therapeutic_procedures.included': 'coveredServicesSection',
+            'covered_services.preventive_exams.specialists': 'coveredServicesSection',
+            'covered_services.preventive_exams.additional': 'coveredServicesSection',
+            'covered_services.medical_documentation.included': 'coveredServicesSection',
+            'exclusions.conditions_not_covered': 'exclusionsSection',
+            'exclusions.services_not_covered': 'exclusionsSection',
+            'exclusions.equipment_not_covered': 'exclusionsSection',
+            'important_notes': 'importantNotesSection',
+            'clinics': 'contactInfoSection',
+            'contact_info': 'contactInfoSection'
+        };
+
+        // Функция для поиска по всему JSON
+        function searchInObject(obj, searchTerm, path = '') {
+            const results = [];
+            const term = searchTerm.toLowerCase();
+            
+            if (typeof obj === 'string') {
+                if (obj.toLowerCase().includes(term)) {
+                    return [{ path, value: obj, match: obj }];
+                }
+            } else if (Array.isArray(obj)) {
+                obj.forEach((item, index) => {
+                    const itemResults = searchInObject(item, searchTerm, `${path}[${index}]`);
+                    results.push(...itemResults);
+                });
+            } else if (typeof obj === 'object' && obj !== null) {
+                Object.keys(obj).forEach(key => {
+                    const value = obj[key];
+                    const currentPath = path ? `${path}.${key}` : key;
+                    const keyResults = searchInObject(value, searchTerm, currentPath);
+                    results.push(...keyResults);
+                });
+            }
+            
+            return results;
+        }
+
+        // Функция для форматирования пути поиска
+        function formatPath(path) {
+            if (path.includes('insurance_cases')) return 'Страховые случаи';
+            if (path.includes('covered_services.outpatient_care.specialist_consultations.excluded')) return 'Исключенные специалисты';
+            if (path.includes('covered_services.outpatient_care.lab_tests.unlimited')) return 'Лабораторные исследования (без ограничений)';
+            if (path.includes('covered_services.outpatient_care.lab_tests.limited')) return 'Лабораторные исследования (с ограничениями)';
+            if (path.includes('covered_services.outpatient_care.instrumental_diagnostics.unlimited')) return 'Инструментальная диагностика (без ограничений)';
+            if (path.includes('covered_services.outpatient_care.instrumental_diagnostics.limited')) return 'Инструментальная диагностика (с ограничениями)';
+            if (path.includes('covered_services.outpatient_care.instrumental_diagnostics.excluded')) return 'Исключенная диагностика';
+            if (path.includes('covered_services.outpatient_care.therapeutic_procedures.included')) return 'Лечебные процедуры';
+            if (path.includes('covered_services.preventive_exams.specialists')) return 'Профилактические осмотры (специалисты)';
+            if (path.includes('covered_services.preventive_exams.additional')) return 'Профилактические осмотры (дополнительно)';
+            if (path.includes('covered_services.medical_documentation.included')) return 'Медицинская документация';
+            if (path.includes('exclusions.conditions_not_covered')) return 'Исключенные заболевания';
+            if (path.includes('exclusions.services_not_covered')) return 'Исключенные услуги';
+            if (path.includes('exclusions.equipment_not_covered')) return 'Исключенное оборудование';
+            if (path.includes('important_notes')) return 'Важные примечания';
+            if (path.includes('clinics')) return 'Клиники';
+            if (path.includes('contact_info')) return 'Контактная информация';
+            
+            return path;
+        }
+
+        // Функция для получения ID секции по пути
+        function getSectionIdByPath(path) {
+            for (const [key, sectionId] of Object.entries(pathToElementMap)) {
+                if (path.includes(key)) {
+                    return sectionId;
+                }
+            }
+            return 'generalInfoSection';
+        }
+
+        // Функция для отображения результатов поиска
+        function displaySearchResults(results) {
+            const searchResultsDiv = document.getElementById('searchResults');
+            if (results.length === 0) {
+                searchResultsDiv.style.display = 'none';
+                return;
+            }
+            
+            searchResultsDiv.innerHTML = '<h4>Результаты поиска:</h4>';
+            const groupedResults = {};
+            
+            results.forEach(result => {
+                const section = formatPath(result.path);
+                const sectionId = getSectionIdByPath(result.path);
+                if (!groupedResults[section]) {
+                    groupedResults[section] = { sectionId, items: [] };
+                }
+                groupedResults[section].items.push(result.value);
+            });
+            
+            Object.keys(groupedResults).forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'result-section';
+                sectionDiv.textContent = section;
+                searchResultsDiv.appendChild(sectionDiv);
+                
+                groupedResults[section].items.forEach(value => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result-item';
+                    resultDiv.textContent = value;
+                    resultDiv.onclick = () => {
+                        // Развернуть секцию и прокрутить к ней
+                        const sectionElement = document.getElementById(groupedResults[section].sectionId);
+                        if (sectionElement) {
+                            sectionElement.classList.remove('collapsed');
+                            sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    };
+                    searchResultsDiv.appendChild(resultDiv);
+                });
+            });
+            
+            searchResultsDiv.style.display = 'block';
+        }
+
+        // Обработчик поиска
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+            
+            const results = searchInObject(medicalData, searchTerm);
+            displaySearchResults(results);
+        });
+
+        // Функции для отображения данных
+        function renderList(containerId, items, className = 'list-item') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = className;
+                if (typeof item === 'object') {
+                    div.textContent = `${item.test || item.procedure}: ${item.limit}`;
+                } else {
+                    div.textContent = item;
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function renderClinics() {
+            const container = document.getElementById('clinicsList');
+            container.innerHTML = '';
+            medicalData.clinics.forEach(clinic => {
+                const div = document.createElement('div');
+                div.className = 'clinic-item';
+                div.innerHTML = `<strong>${clinic.name}</strong><br>${clinic.address}`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderImportantNotes() {
+            const container = document.getElementById('importantNotes');
+            container.innerHTML = '';
+            medicalData.important_notes.forEach(note => {
+                const div = document.createElement('div');
+                div.className = 'important-note';
+                div.textContent = note;
+                container.appendChild(div);
+            });
+        }
+
+        // Обработчик кликов по заголовкам секций
+        document.querySelectorAll('.content-section h2').forEach(header => {
+            header.addEventListener('click', function() {
+                const section = this.parentElement;
+                section.classList.toggle('collapsed');
+            });
+        });
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Страховые случаи
+            renderList('insuranceCases', medicalData.insurance_cases);
+            
+            // Исключенные специалисты
+            renderList('excludedSpecialists', medicalData.covered_services.outpatient_care.specialist_consultations.excluded, 'list-item excluded-item');
+            
+            // Лабораторные исследования
+            renderList('unlimitedLabTests', medicalData.covered_services.outpatient_care.lab_tests.unlimited);
+            renderList('limitedLabTests', medicalData.covered_services.outpatient_care.lab_tests.limited, 'limited-item');
+            
+            // Инструментальная диагностика
+            renderList('unlimitedDiagnostics', medicalData.covered_services.outpatient_care.instrumental_diagnostics.unlimited);
+            renderList('limitedDiagnostics', medicalData.covered_services.outpatient_care.instrumental_diagnostics.limited, 'limited-item');
+            renderList('excludedDiagnostics', medicalData.covered_services.outpatient_care.instrumental_diagnostics.excluded, 'list-item excluded-item');
+            
+            // Лечебные процедуры
+            renderList('therapeuticProcedures', medicalData.covered_services.outpatient_care.therapeutic_procedures.included);
+            
+            // Профилактические осмотры
+            renderList('preventiveSpecialists', medicalData.covered_services.preventive_exams.specialists);
+            renderList('preventiveAdditional', medicalData.covered_services.preventive_exams.additional);
+            
+            // Медицинская документация
+            renderList('medicalDocumentation', medicalData.covered_services.medical_documentation.included);
+            
+            // Исключения
+            renderList('excludedConditions', medicalData.exclusions.conditions_not_covered, 'list-item excluded-item');
+            renderList('excludedServices', medicalData.exclusions.services_not_covered, 'list-item excluded-item');
+            renderList('excludedEquipment', medicalData.exclusions.equipment_not_covered, 'list-item excluded-item');
+            
+            // Клиники и примечания
+            renderClinics();
+            renderImportantNotes();
+            
+            // По умолчанию все секции развернуты
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('collapsed');
+            });
+        });
+    </script>
+</body>
+</html>
